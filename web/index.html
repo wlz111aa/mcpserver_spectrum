@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Spectrum Viewer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>实时光谱</h1>
+    <canvas id="spectrumChart" height="360"></canvas>
+    <div id="status">等待数据... 打开页面请使用 http://127.0.0.1:8000/ （不要直接用 file://）</div>
+    <div id="tooltip" class="tooltip" style="display:none;"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('spectrumChart');
+    const ctx = canvas.getContext('2d');
+
+    function clearCanvas() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+
+    function drawLineChart(labels, values) {
+      // resize for high-DPI
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.clientWidth * dpr;
+      canvas.height = canvas.clientHeight * dpr;
+      ctx.scale(dpr, dpr);
+      clearCanvas();
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      // margins
+      const m = {l:40, r:20, t:20, b:40};
+      const plotW = w - m.l - m.r;
+      const plotH = h - m.t - m.b;
+
+      // find value range
+      const maxV = Math.max(...values, 1);
+      const minV = Math.min(...values, 0);
+
+      // draw axes
+      ctx.strokeStyle = '#ccc';
+      ctx.beginPath();
+      ctx.moveTo(m.l, m.t);
+      ctx.lineTo(m.l, m.t+plotH);
+      ctx.lineTo(m.l+plotW, m.t+plotH);
+      ctx.stroke();
+
+      // draw line
+      ctx.strokeStyle = '#4bc0c0';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      values.forEach((v,i)=>{
+        const x = m.l + (i/(values.length-1||1)) * plotW;
+        const y = m.t + plotH - ((v - minV)/(maxV - minV || 1)) * plotH;
+        if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+
+      // draw labels (sparse)
+      ctx.fillStyle = '#333';
+      ctx.font = '12px sans-serif';
+      const step = Math.max(1, Math.floor(labels.length/8));
+      labels.forEach((lab,i)=>{
+        if (i % step !== 0) return;
+        const x = m.l + (i/(labels.length-1||1)) * plotW;
+        ctx.fillText(lab, x-10, m.t+plotH+14);
+      });
+
+      // save current plotted state for hover
+      window._spectrum_plot = { labels: labels, values: values, plotArea: { m, plotW, plotH, w, h } };
+    }
+
+    function updateChartFromData(data) {
+      const keys = Object.keys(data).filter(k=>k).sort((a,b)=>{
+        const na = parseInt(a.replace(/\D/g,''))||0
+        const nb = parseInt(b.replace(/\D/g,''))||0
+        return na-nb
+      })
+      if (keys.length === 0) return false
+      const labels = keys.map(k=>k)
+      const values = keys.map(k=>Number(data[k] || 0))
+      drawLineChart(labels, values)
+      return true
+    }
+
+    async function fetchLatest() {
+      // if page opened via file://, instruct user to use HTTP server
+      if (location.protocol === 'file:') {
+        document.getElementById('status').textContent = '页面通过 file:// 打开，无法访问 API。请用 http://127.0.0.1:8000/ 打开此页面。';
+        return;
+      }
+      const tried = [];
+      // try relative first
+      try {
+        tried.push('/api/latest');
+        let res = await fetch('/api/latest', {cache: 'no-store'});
+        if (res.status === 404) {
+          // try host:8000 as a fallback
+          const fallback = `${location.protocol}//${location.hostname}:8000/api/latest`;
+          tried.push(fallback);
+          res = await fetch(fallback, {cache: 'no-store'});
+        }
+        if (!res.ok) throw new Error('network ' + res.status);
+        const data = await res.json();
+        const ok = updateChartFromData(data);
+        document.getElementById('status').textContent = ok ? '已更新' : '暂无数据';
+      } catch (e) {
+        document.getElementById('status').textContent = '无法获取数据 — ' + e.message + ' (tried: ' + tried.join(', ') + ')';
+      }
+    }
+
+    // 初始加载并每秒轮询一次
+    fetchLatest();
+    setInterval(fetchLatest, 1000);
+
+    // tooltip behavior
+    const tooltip = document.getElementById('tooltip');
+    function hideTooltip(){ tooltip.style.display='none'; }
+    function showTooltip(text, x, y){ tooltip.innerText = text; tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px'; tooltip.style.display = 'block'; }
+
+    function canvasPos(evt){
+      const rect = canvas.getBoundingClientRect();
+      return { x: evt.clientX - rect.left, y: evt.clientY - rect.top, clientX: evt.clientX, clientY: evt.clientY };
+    }
+
+    canvas.addEventListener('mousemove', (evt)=>{
+      const state = window._spectrum_plot;
+      if (!state) return hideTooltip();
+      const pos = canvasPos(evt);
+      const { labels, values, plotArea } = state;
+      const { m, plotW } = plotArea;
+      const relX = pos.x - m.l;
+      if (relX < 0 || relX > plotW) return hideTooltip();
+      const idx = Math.round((relX/plotW) * (values.length-1||0));
+      if (idx < 0 || idx >= values.length) return hideTooltip();
+      const label = labels[idx];
+      const value = values[idx];
+      showTooltip(`${label}: ${value}`, pos.clientX, pos.clientY - 8);
+    });
+    canvas.addEventListener('mouseleave', hideTooltip);
+  </script>
+</body>
+</html>
