@@ -179,7 +179,7 @@ if __name__ == '__main__':
     http_server = start_http_server(args.http_host, args.http_port)
 
     try:
-        mcp.run(transport="sse")
+        mcp.run(transport="streamable-http")
     except KeyboardInterrupt:
         pass
     finally:
