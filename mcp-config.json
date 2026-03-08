@@ -4,9 +4,8 @@
       "type": "streamable_http",
       "url": "http://localhost:8000",
       "name": "mcpserver_spectrum",
-      "description": "Spectrum MCP server configuration",
       "install": {
-        "commands": ["pip install flask pyserial"]
+        "commands": ["python -m pip install --upgrade pip", "pip install -r requirements.txt"]
       },
       "start": {
         "command": "python",
