@@ -5,6 +5,9 @@ import logging
 import os
 from mcp.server.fastmcp import FastMCP
 
+# basic logging configuration
+logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] %(message)s')
+
 import paho.mqtt.client as mqtt
 
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -193,6 +196,9 @@ if __name__ == '__main__':
         mcp.run(transport=transport)
     except KeyboardInterrupt:
         pass
+    except Exception:
+        logging.exception("MCP run failed")
+        raise
     finally:
         if mqtt_client:
             mqtt_client.loop_stop()
