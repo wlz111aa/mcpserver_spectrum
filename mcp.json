@@ -4,8 +4,6 @@
   "install": {
     "commands": [
       "python -m pip install --upgrade pip",
-      "pip install -e .",
-      "# Alternative: if the platform prefers requirements file",
       "pip install -r requirements.txt"
     ]
   },
@@ -20,8 +18,7 @@
   },
   "service": {
     "port": 8000,
-    "protocol": "http",
-    "health_check_path": "/api/latest"
+    "protocol": "http"
   },
   "notes": [
     "If you do not want the MQTT client started during platform runs, add the argument --no-mqtt to start.args",
