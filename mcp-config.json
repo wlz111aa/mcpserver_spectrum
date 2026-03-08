@@ -3,6 +3,7 @@
     "mcpserver_spectrum": {
       "type": "streamable_http",
       "url": "http://localhost:8000",
+      "name": "mcpserver_spectrum",
       "description": "Runtime configuration for platform: how to install and start the Spectrum MCP server",
       "install": {
         "commands": [
