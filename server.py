@@ -131,6 +131,8 @@ def start_http_server(bind_host: str = '0.0.0.0', port: int = 8000):
                 self.send_header('Content-Type', 'application/json')
                 # provide content-length to avoid chunked/streaming behavior
                 self.send_header('Content-Length', str(len(body)))
+                # advise client the connection will be closed after response
+                self.send_header('Connection', 'close')
                 self.end_headers()
                 self.wfile.write(body)
                 return
@@ -162,6 +164,7 @@ def start_http_server(bind_host: str = '0.0.0.0', port: int = 8000):
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
                 self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                self.send_header('Connection', 'close')
                 self.end_headers()
                 return
             return super().do_OPTIONS()
