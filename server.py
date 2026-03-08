@@ -207,8 +207,7 @@ if __name__ == '__main__':
     http_server = start_http_server(args.http_host, args.http_port)
 
     try:
-        # default to stdio transport so platform can run this process and talk over stdio
-        raw_transport = os.environ.get('MCP_TRANSPORT', 'stdio')
+        raw_transport = os.environ.get('MCP_TRANSPORT', 'streamable-http')
         # accept some common alias values
         if raw_transport == 'http':
             transport = 'streamable-http'
