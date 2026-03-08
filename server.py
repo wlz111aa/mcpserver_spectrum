@@ -119,14 +119,17 @@ def start_http_server(bind_host: str = '0.0.0.0', port: int = 8000):
             parsed = urllib.parse.urlparse(self.path)
             # serve API
             if parsed.path == '/api/latest':
+                body = json.dumps(latest_spectrum).encode('utf-8')
                 self.send_response(200)
                 # CORS - allow access from browser pages
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
                 self.send_header('Access-Control-Allow-Headers', 'Content-Type')
                 self.send_header('Content-Type', 'application/json')
+                # provide content-length to avoid chunked/streaming behavior
+                self.send_header('Content-Length', str(len(body)))
                 self.end_headers()
-                self.wfile.write(json.dumps(latest_spectrum).encode('utf-8'))
+                self.wfile.write(body)
                 return
 
             # explicitly serve index for root
