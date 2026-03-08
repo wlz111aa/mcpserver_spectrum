@@ -1,6 +1,8 @@
 import json
 import threading
 import time
+import logging
+import os
 from mcp.server.fastmcp import FastMCP
 
 import paho.mqtt.client as mqtt
@@ -112,6 +114,8 @@ def start_http_server(bind_host: str = '0.0.0.0', port: int = 8000):
             super().__init__(*args, directory=directory, **kwargs)
 
         def do_GET(self):
+            logging.debug(f"HTTP {self.client_address} {self.command} {self.path}")
+            logging.debug(f"Headers:\n{self.headers}")
             parsed = urllib.parse.urlparse(self.path)
             # serve API
             if parsed.path == '/api/latest':
@@ -143,6 +147,8 @@ def start_http_server(bind_host: str = '0.0.0.0', port: int = 8000):
             return super().do_GET()
 
         def do_OPTIONS(self):
+            logging.debug(f"HTTP {self.client_address} {self.command} {self.path} (OPTIONS)")
+            logging.debug(f"Headers:\n{self.headers}")
             # respond to CORS preflight
             parsed = urllib.parse.urlparse(self.path)
             if parsed.path == '/api/latest':
@@ -179,7 +185,9 @@ if __name__ == '__main__':
     http_server = start_http_server(args.http_host, args.http_port)
 
     try:
-        mcp.run(transport="streamable-http")
+        transport = os.environ.get('MCP_TRANSPORT', 'streamable-http')
+        logging.info(f"Starting MCP with transport={transport}")
+        mcp.run(transport=transport)
     except KeyboardInterrupt:
         pass
     finally:
