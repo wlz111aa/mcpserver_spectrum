@@ -1,27 +1,28 @@
 {
-  "name": "mcpserver_spectrum",
-  "description": "Runtime configuration for platform: how to install and start the Spectrum MCP server",
-  "install": {
-    "commands": [
-      "python -m pip install --upgrade pip",
-      "pip install -r requirements.txt"
-    ]
-  },
-  "start": {
-    "command": "python",
-    "args": ["server.py"],
-    "env": {
-      "HTTP_BIND": "0.0.0.0",
-      "HTTP_PORT": "8000",
-      "MCP_TRANSPORT": "streamable-http"
+  "mcpServers": {
+    "mcpserver_spectrum": {
+      "type": "streamable_http",
+      "url": "http://localhost:8000",
+      "description": "Runtime configuration for platform: how to install and start the Spectrum MCP server",
+      "install": {
+        "commands": [
+          "python -m pip install --upgrade pip",
+          "pip install -r requirements.txt"
+        ]
+      },
+      "start": {
+        "command": "python",
+        "args": ["server.py"],
+        "env": {
+          "HTTP_BIND": "0.0.0.0",
+          "HTTP_PORT": "8000",
+          "MCP_TRANSPORT": "streamable-http"
+        }
+      },
+      "service": {
+        "port": 8000,
+        "protocol": "http"
+      }
     }
-  },
-  "service": {
-    "port": 8000,
-    "protocol": "http"
-  },
-  "notes": [
-    "If you do not want the MQTT client started during platform runs, add the argument --no-mqtt to start.args",
-    "The project declares dependencies in pyproject.toml; the platform may choose either editable install (pip install -e .) or requirements-style install."
-  ]
+  }
 }
