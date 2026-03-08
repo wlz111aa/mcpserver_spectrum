@@ -1,19 +1,20 @@
 {
   "mcpServers": {
     "mcpserver_spectrum": {
-      "type": "streamable_http",
-      "url": "http://localhost:8000",
       "name": "mcpserver_spectrum",
       "install": {
-        "commands": ["python -m pip install --upgrade pip", "pip install -r requirements.txt"]
+        "commands": [
+          "python -m pip install --upgrade pip",
+          "pip install -r requirements.txt"
+        ]
       },
       "start": {
         "command": "python",
-        "args": ["server.py"]
-      },
-      "service": {
-        "port": 8000,
-        "protocol": "http"
+        "args": ["server.py"],
+        "env": {
+          "HTTP_BIND": "0.0.0.0",
+          "HTTP_PORT": "8000"
+        }
       }
     }
   }
