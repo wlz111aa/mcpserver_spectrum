@@ -191,8 +191,13 @@ if __name__ == '__main__':
     http_server = start_http_server(args.http_host, args.http_port)
 
     try:
-        transport = os.environ.get('MCP_TRANSPORT', 'streamable-http')
-        logging.info(f"Starting MCP with transport={transport}")
+        raw_transport = os.environ.get('MCP_TRANSPORT', 'streamable-http')
+        # accept some common alias values
+        if raw_transport == 'http':
+            transport = 'streamable-http'
+        else:
+            transport = raw_transport
+        logging.info(f"Starting MCP with transport={transport} (raw={raw_transport})")
         mcp.run(transport=transport)
     except KeyboardInterrupt:
         pass
