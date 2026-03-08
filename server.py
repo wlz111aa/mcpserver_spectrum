@@ -120,10 +120,21 @@ def start_http_server(bind_host: str = '0.0.0.0', port: int = 8000):
             logging.debug(f"HTTP {self.client_address} {self.command} {self.path}")
             logging.debug(f"Headers:\n{self.headers}")
             parsed = urllib.parse.urlparse(self.path)
+            # additional request-level logging to help diagnose platform requests
+            logging.info(
+                "HTTP request details: path=%s host=%s user_agent=%s accept=%s referer=%s",
+                parsed.path,
+                self.headers.get('Host'),
+                self.headers.get('User-Agent'),
+                self.headers.get('Accept'),
+                self.headers.get('Referer')
+            )
             # serve API
             if parsed.path == '/api/latest':
                 body = json.dumps(latest_spectrum).encode('utf-8')
                 self.send_response(200)
+                # mark responses so we can identify this server in logs/traces
+                self.send_header('X-Served-By', 'mcpserver')
                 # CORS - allow access from browser pages
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
@@ -144,6 +155,7 @@ def start_http_server(bind_host: str = '0.0.0.0', port: int = 8000):
                     with open(index_path, 'rb') as f:
                         content = f.read()
                     self.send_response(200)
+                    self.send_header('X-Served-By', 'mcpserver')
                     self.send_header('Content-Type', 'text/html; charset=utf-8')
                     self.send_header('Content-Length', str(len(content)))
                     self.end_headers()
@@ -161,6 +173,7 @@ def start_http_server(bind_host: str = '0.0.0.0', port: int = 8000):
             parsed = urllib.parse.urlparse(self.path)
             if parsed.path == '/api/latest':
                 self.send_response(204)
+                self.send_header('X-Served-By', 'mcpserver')
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
                 self.send_header('Access-Control-Allow-Headers', 'Content-Type')
