@@ -4,21 +4,13 @@
       "type": "streamable_http",
       "url": "http://localhost:8000",
       "name": "mcpserver_spectrum",
-      "description": "Runtime configuration for platform: how to install and start the Spectrum MCP server",
+      "description": "Spectrum MCP server configuration",
       "install": {
-        "commands": [
-          "python -m pip install --upgrade pip",
-          "pip install -r requirements.txt"
-        ]
+        "commands": ["pip install flask pyserial"]
       },
       "start": {
         "command": "python",
-        "args": ["server.py"],
-        "env": {
-          "HTTP_BIND": "0.0.0.0",
-          "HTTP_PORT": "8000",
-          "MCP_TRANSPORT": "streamable-http"
-        }
+        "args": ["server.py"]
       },
       "service": {
         "port": 8000,
