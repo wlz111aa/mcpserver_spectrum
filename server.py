@@ -17,11 +17,11 @@ import argparse
 import sys
 
 # --- Configuration (edit as needed) ---
-MQTT_BROKER = "be18721454da4600b14a92424bb1181c.s1.eu.hivemq.cloud"
+MQTT_BROKER = "be18721454da1230b14a92424bb1181c.s1.eu.hivemq.cloud"
 MQTT_PORT = 8883
 MQTT_TOPIC = "meimefarm/Spectrum"
 MQTT_USER = "meimeifarm"
-MQTT_PASSWORD = "Meimei83036666"
+MQTT_PASSWORD = "11111111111"
 
 # Shared state updated by MQTT callback
 latest_spectrum = {}
