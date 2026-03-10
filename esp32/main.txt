@@ -17,13 +17,13 @@ WIFI_SSID = "cc"
 WIFI_PASS = "66666666"
 
 # MQTT Settings
-MQTT_BROKER = "be18721454da4600b14a92424bb1181c.s1.eu.hivemq.cloud"
+MQTT_BROKER = "be18721454da41231b14a92424bb1181c.s1.eu.hivemq.cloud"
 MQTT_PORT = 8883  # SSL/TLS
 MQTT_TOPIC = "meimefarm/Spectrum"
 # MQTT_TOPIC_SECOND removed as per user request
 MQTT_CLIENT_ID = None # Will be generated from unique_id
 MQTT_USER = "meimeifarm"
-MQTT_PASSWORD = "Meimei83036666"
+MQTT_PASSWORD = "1111i11111"
 
 # Static IP Settings
 STATIC_IP_ENABLED = False
