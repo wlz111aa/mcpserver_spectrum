@@ -1,4 +1,4 @@
-# Spectrum MCP Server — 使用与服务配置
+# Straviosion- Spectrum MCP Server — 使用与服务配置
 
 本仓库包含一个将 ESP32 上 AS7341 光谱传感器数据通过 MQTT 收集并暴露为 MCP 资源的服务。该 README 重点说明如何在本地与平台上运行此服务，以及平台所需的启动配置说明。
 
